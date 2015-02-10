@@ -21,7 +21,7 @@ using OpenRA.Traits;
 namespace OpenRA.Mods.Common.Scripting
 {
 	[ScriptPropertyGroup("Combat")]
-	public class CombatProperties : ScriptActorProperties, Requires<AttackBaseInfo>, Requires<IMoveInfo>
+	public class CombatProperties : ScriptActorProperties, Requires<AttackBaseInfo>, Requires<IMoveInfo>, Requires<AttackMoveInfo>
 	{
 		readonly IMove move;
 
@@ -52,14 +52,7 @@ namespace OpenRA.Mods.Common.Scripting
 			"and the actor will wait for `wait` ticks at each waypoint.")]
 		public void Patrol(CPos[] waypoints, bool loop = true, int wait = 0)
 		{
-			foreach (var wpt in waypoints)
-			{
-				Self.QueueActivity(new AttackMoveActivity(Self, () => move.MoveTo(wpt, 2)));
-				Self.QueueActivity(new Wait(wait));
-			}
-
-			if (loop)
-				Self.QueueActivity(new CallFunc(() => Patrol(waypoints, loop, wait)));
+			Self.QueueActivity(new Patrol(Self, waypoints, loop, wait));
 		}
 
 		[ScriptActorPropertyActivity]
@@ -67,12 +60,18 @@ namespace OpenRA.Mods.Common.Scripting
 			"The actor will wait for `wait` ticks at each waypoint.")]
 		public void PatrolUntil(CPos[] waypoints, LuaFunction func, int wait = 0)
 		{
-			Patrol(waypoints, false, wait);
+			var lf = func.CopyReference() as LuaFunction;
+			var f = new Func<bool>(() =>
+			{
+				return lf.Call(Self.ToLuaValue(Context)).First().ToBoolean();
+			});
 
-			var repeat = func.Call(Self.ToLuaValue(Context)).First().ToBoolean();
-			if (repeat)
-				using (var f = func.CopyReference() as LuaFunction)
-					Self.QueueActivity(new CallFunc(() => PatrolUntil(waypoints, f, wait)));
+			Self.QueueActivity(new Patrol(Self, waypoints, f, wait));
+			Self.QueueActivity(new CallFunc(() =>
+			{
+				if (lf != null)
+					lf.Dispose();
+			}));
 		}
 	}
 
