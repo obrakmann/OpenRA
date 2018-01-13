@@ -13,6 +13,10 @@ World:
 			normal: Normal
 		Default: easy
 
+Player:
+	GameMode@scripted:
+		Name: Mission
+
 CHALK1:
 	ParatroopersPower:
 		DisplayBeacon: False

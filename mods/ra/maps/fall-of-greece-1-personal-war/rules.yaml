@@ -13,6 +13,10 @@ World:
 			hard: Hard
 		Default: normal
 
+Player:
+	GameMode@scripted:
+		Name: Mission
+
 INSERTIONDROP:
 	ParatroopersPower:
 		DisplayBeacon: False
