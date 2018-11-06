@@ -836,7 +836,9 @@ repair_pad:
 		HpPerStep: 800
 		StartRepairingNotification: Repairing
 		FinishRepairingNotification: UnitRepaired
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 	RallyPoint:
 	RenderSprites:
 		Image: repair_pad.ordos

@@ -186,10 +186,14 @@ E6:
 	Captures@SABOTAGE:
 		CaptureTypes: building-sabotage
 		SabotageThreshold: 55
-		PlayerExperience: 50
+		PlayerExperience:
+			conquest: 50
+			koth: 50
 	Captures@CAPTURES:
 		CaptureTypes: building, husk
-		PlayerExperience: 50
+		PlayerExperience:
+			conquest: 50
+			koth: 50
 	-AttackFrontal:
 
 RMBO:

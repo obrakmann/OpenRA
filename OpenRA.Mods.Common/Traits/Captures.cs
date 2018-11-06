@@ -40,8 +40,8 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Enter the target actor and be consumed by the capture.")]
 		public readonly bool ConsumedByCapture = true;
 
-		[Desc("Experience granted to the capturing player.")]
-		public readonly int PlayerExperience = 0;
+		[Desc("Experience granted to the capturing player, by game mode.")]
+		public readonly Dictionary<string, int> PlayerExperience = new Dictionary<string, int>();
 
 		[Desc("Stance that the structure's previous owner needs to have for the capturing player to receive Experience.")]
 		public readonly Stance PlayerExperienceStances = Stance.Enemy;

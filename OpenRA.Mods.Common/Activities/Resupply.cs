@@ -36,6 +36,7 @@ namespace OpenRA.Mods.Common.Activities
 		readonly bool wasRepaired;
 		readonly PlayerResources playerResources;
 		readonly int unitCost;
+		readonly string gameMode;
 
 		int remainingTicks;
 		bool played;
@@ -60,6 +61,7 @@ namespace OpenRA.Mods.Common.Activities
 
 			var valued = self.Info.TraitInfoOrDefault<ValuedInfo>();
 			unitCost = valued != null ? valued.Cost : 0;
+			gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
 
 			var cannotRepairAtHost = health == null || health.DamageState == DamageState.Undamaged
 				|| !allRepairsUnits.Any()
@@ -255,8 +257,8 @@ namespace OpenRA.Mods.Common.Activities
 				if (host.Actor.Owner != self.Owner)
 				{
 					var exp = host.Actor.Owner.PlayerActor.TraitOrDefault<PlayerExperience>();
-					if (exp != null)
-						exp.GiveExperience(repairsUnits.Info.PlayerExperience);
+					if (exp != null && repairsUnits.Info.PlayerExperience.ContainsKey(gameMode))
+						exp.GiveExperience(repairsUnits.Info.PlayerExperience[gameMode]);
 				}
 
 				Game.Sound.PlayNotification(self.World.Map.Rules, self.Owner, "Speech", repairsUnits.Info.FinishRepairingNotification, self.Owner.Faction.InternalName);

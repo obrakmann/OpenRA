@@ -207,7 +207,9 @@ SPEN:
 		HpPerStep: 1000
 		StartRepairingNotification: Repairing
 		FinishRepairingNotification: UnitRepaired
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 	RallyPoint:
 	ProductionBar:
 		ProductionType: Ship
@@ -321,7 +323,9 @@ SYRD:
 		HpPerStep: 1000
 		StartRepairingNotification: Repairing
 		FinishRepairingNotification: UnitRepaired
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 	RallyPoint:
 	ProductionBar:
 		ProductionType: Ship
@@ -1974,7 +1978,9 @@ FIX:
 		Interval: 7
 		StartRepairingNotification: Repairing
 		FinishRepairingNotification: UnitRepaired
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 	WithBuildingBib:
 		HasMinibib: true
 	WithResupplyAnimation:

@@ -20,8 +20,8 @@ namespace OpenRA.Mods.Common.Traits
 	[Desc("This actor can grant experience levels equal to it's own current level via entering to other actors with the `AcceptsDeliveredExperience` trait.")]
 	class DeliversExperienceInfo : TraitInfo, Requires<GainsExperienceInfo>
 	{
-		[Desc("The amount of experience the donating player receives.")]
-		public readonly int PlayerExperience = 0;
+		[Desc("The amount of experience the donating player receives, by game mode.")]
+		public readonly Dictionary<string, int> PlayerExperience = new Dictionary<string, int>();
 
 		[Desc("Identifier checked against AcceptsDeliveredExperience.ValidTypes. Only needed if the latter is not empty.")]
 		public readonly string Type = null;
@@ -40,12 +40,18 @@ namespace OpenRA.Mods.Common.Traits
 		readonly DeliversExperienceInfo info;
 		readonly Actor self;
 		readonly GainsExperience gainsExperience;
+		readonly int playerExperience;
 
 		public DeliversExperience(ActorInitializer init, DeliversExperienceInfo info)
 		{
 			this.info = info;
 			self = init.Self;
 			gainsExperience = self.Trait<GainsExperience>();
+
+			var gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
+			playerExperience = 0;
+			if (info.PlayerExperience.ContainsKey(gameMode))
+				playerExperience = info.PlayerExperience[gameMode];
 		}
 
 		public IEnumerable<IOrderTargeter> Orders
@@ -87,7 +93,10 @@ namespace OpenRA.Mods.Common.Traits
 			else if (order.Target.Type != TargetType.FrozenActor)
 				return;
 
-			self.QueueActivity(order.Queued, new DonateExperience(self, order.Target, gainsExperience.Level, info.PlayerExperience));
+			if (!order.Queued)
+				self.CancelActivity();
+
+			self.QueueActivity(order.Queued, new DonateExperience(self, order.Target, gainsExperience.Level, playerExperience));
 			self.ShowTargetLines();
 		}
 

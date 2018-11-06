@@ -274,12 +274,16 @@ E6:
 	Captures:
 		RequiresCondition: !global-reusable-engineers
 		CaptureTypes: building
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 		CaptureDelay: 200
 	Captures@REUSABLE:
 		RequiresCondition: global-reusable-engineers
 		CaptureTypes: building
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 		CaptureDelay: 375
 		ConsumedByCapture: False
 		EnterCursor: ability
@@ -318,7 +322,8 @@ SPY:
 	Infiltrates:
 		Types: SpyInfiltrate
 		Notification: BuildingInfiltrated
-		PlayerExperience: 50
+			conquest: 50
+			koth: 50
 	AutoTarget:
 		InitialStance: HoldFire
 		InitialStanceAI: HoldFire
@@ -482,12 +487,16 @@ MECH:
 	CaptureManager:
 	Captures:
 		CaptureTypes: husk
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 	Infiltrates:
 		Types: Husk
 		ValidStances: Ally
 		EnterCursor: goldwrench
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 	WithInfantryBody:
 		IdleSequences: idle
 		DefaultAttackSequence: repair
@@ -576,11 +585,14 @@ THF:
 	CaptureManager:
 	Captures:
 		CaptureTypes: vehicle
-		PlayerExperience: 50
+		PlayerExperience:
+			conquest: 50
+			koth: 50
 	Infiltrates:
 		Types: ThiefInfiltrate
 		Notification: BuildingInfiltrated
-		PlayerExperience: 50
+			conquest: 50
+			koth: 50
 	Voiced:
 		VoiceSet: ThiefVoice
 	-TakeCover:

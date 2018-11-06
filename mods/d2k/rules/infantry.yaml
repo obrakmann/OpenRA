@@ -48,7 +48,9 @@ engineer:
 	CaptureManager:
 	Captures:
 		CaptureTypes: building
-		PlayerExperience: 50
+		PlayerExperience:
+			conquest: 50
+			koth: 50
 	-RevealOnFire:
 	Voiced:
 		VoiceSet: EngineerVoice

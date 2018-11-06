@@ -23,8 +23,8 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("The amount of cash the owner receives.")]
 		public readonly int Payload = 500;
 
-		[Desc("The amount of experience the donating player receives.")]
-		public readonly int PlayerExperience = 0;
+		[Desc("The amount of experience the donating player receives, by game mode.")]
+		public readonly Dictionary<string, int> PlayerExperience = new Dictionary<string, int>();
 
 		[Desc("Identifier checked against AcceptsDeliveredCash.ValidTypes. Only needed if the latter is not empty.")]
 		public readonly string Type = null;
@@ -38,16 +38,18 @@ namespace OpenRA.Mods.Common.Traits
 		[VoiceReference]
 		public readonly string Voice = "Action";
 
-		public override object Create(ActorInitializer init) { return new DeliversCash(this); }
+		public override object Create(ActorInitializer init) { return new DeliversCash(init.Self, this); }
 	}
 
 	class DeliversCash : IIssueOrder, IResolveOrder, IOrderVoice, INotifyCashTransfer
 	{
 		readonly DeliversCashInfo info;
+		readonly string gameMode;
 
-		public DeliversCash(DeliversCashInfo info)
+		public DeliversCash(Actor self, DeliversCashInfo info)
 		{
 			this.info = info;
+			gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
 		}
 
 		public IEnumerable<IOrderTargeter> Orders
@@ -76,7 +78,14 @@ namespace OpenRA.Mods.Common.Traits
 			if (order.OrderString != "DeliverCash")
 				return;
 
-			self.QueueActivity(order.Queued, new DonateCash(self, order.Target, info.Payload, info.PlayerExperience));
+			if (!order.Queued)
+				self.CancelActivity();
+
+			var playerExperience = 0;
+			if (info.PlayerExperience.ContainsKey(gameMode))
+				playerExperience = info.PlayerExperience[gameMode];
+
+			self.QueueActivity(order.Queued, new DonateCash(self, order.Target, info.Payload, playerExperience));
 			self.ShowTargetLines();
 		}
 

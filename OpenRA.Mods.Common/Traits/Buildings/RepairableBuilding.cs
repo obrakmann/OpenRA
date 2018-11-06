@@ -39,8 +39,8 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Cancel the repair state when the trait is disabled.")]
 		public readonly bool CancelWhenDisabled = false;
 
-		[Desc("Experience gained by a player for repairing structures of allied players.")]
-		public readonly int PlayerExperience = 0;
+		[Desc("Experience gained by a player for repairing structures of allied players, by game mode.")]
+		public readonly Dictionary<string, int> PlayerExperience = new Dictionary<string, int>();
 
 		[GrantedConditionReference]
 		[Desc("The condition to grant to self while being repaired.")]
@@ -57,6 +57,7 @@ namespace OpenRA.Mods.Common.Traits
 		readonly IHealth health;
 		readonly Predicate<Player> isNotActiveAlly;
 		readonly Stack<int> repairTokens = new Stack<int>();
+		readonly string gameMode;
 		int remainingTicks;
 
 		public readonly List<Player> Repairers = new List<Player>();
@@ -67,6 +68,7 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			health = self.Trait<IHealth>();
 			isNotActiveAlly = player => player.WinState != WinState.Undefined || player.Stances[self.Owner] != Stance.Ally;
+			gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
 		}
 
 		[Sync]
@@ -173,8 +175,8 @@ namespace OpenRA.Mods.Common.Traits
 							return;
 
 						var exp = r.PlayerActor.TraitOrDefault<PlayerExperience>();
-						if (exp != null)
-							exp.GiveExperience(Info.PlayerExperience);
+						if (exp != null && Info.PlayerExperience.ContainsKey(gameMode))
+							exp.GiveExperience(Info.PlayerExperience[gameMode]);
 					});
 
 					Repairers.Clear();

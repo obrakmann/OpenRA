@@ -253,7 +253,9 @@ NAHPAD:
 	RepairsUnits:
 		HpPerStep: 1000
 		PauseOnCondition: empdisable
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 		StartRepairingNotification: Repairing
 	ProductionBar:
 		ProductionType: Air

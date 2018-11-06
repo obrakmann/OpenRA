@@ -22,11 +22,16 @@ namespace OpenRA.Mods.Common.Scripting
 	public class DeliversCashProperties : ScriptActorProperties, Requires<IMoveInfo>, Requires<DeliversCashInfo>
 	{
 		readonly DeliversCashInfo info;
+		readonly int playerExperience;
 
 		public DeliversCashProperties(ScriptContext context, Actor self)
 			: base(context, self)
 		{
 			info = Self.Info.TraitInfo<DeliversCashInfo>();
+			var gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
+			playerExperience = 0;
+			if (info.PlayerExperience.ContainsKey(gameMode))
+				playerExperience = info.PlayerExperience[gameMode];
 		}
 
 		[ScriptActorPropertyActivity]
@@ -34,7 +39,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public void DeliverCash(Actor target)
 		{
 			var t = Target.FromActor(target);
-			Self.QueueActivity(new DonateCash(Self, t, info.Payload, info.PlayerExperience));
+			Self.QueueActivity(new DonateCash(Self, t, info.Payload, playerExperience));
 		}
 	}
 
@@ -43,12 +48,17 @@ namespace OpenRA.Mods.Common.Scripting
 	{
 		readonly DeliversExperienceInfo deliversExperience;
 		readonly GainsExperience gainsExperience;
+		readonly int playerExperience;
 
 		public DeliversExperienceProperties(ScriptContext context, Actor self)
 			: base(context, self)
 		{
 			deliversExperience = Self.Info.TraitInfo<DeliversExperienceInfo>();
 			gainsExperience = Self.Trait<GainsExperience>();
+			var gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
+			playerExperience = 0;
+			if (deliversExperience.PlayerExperience.ContainsKey(gameMode))
+				playerExperience = deliversExperience.PlayerExperience[gameMode];
 		}
 
 		[ScriptActorPropertyActivity]
@@ -65,7 +75,7 @@ namespace OpenRA.Mods.Common.Scripting
 			var level = gainsExperience.Level;
 
 			var t = Target.FromActor(target);
-			Self.QueueActivity(new DonateExperience(Self, t, level, deliversExperience.PlayerExperience));
+			Self.QueueActivity(new DonateExperience(Self, t, level, playerExperience));
 		}
 	}
 }

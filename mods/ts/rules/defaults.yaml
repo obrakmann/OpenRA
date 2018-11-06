@@ -3,7 +3,9 @@
 	UpdatesPlayerStatistics:
 	CombatDebugOverlay:
 	GivesExperience:
-		PlayerExperienceModifier: 1
+		PlayerExperienceModifier:
+			conquest: 1
+			koth: 1
 	ScriptTriggers:
 	RenderDebugState:
 
@@ -363,7 +365,9 @@
 		Types: building
 	RepairableBuilding:
 		RepairStep: 700
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 		RepairingNotification: Repairing
 	WithDeathAnimation:
 		DeathSequence: dead

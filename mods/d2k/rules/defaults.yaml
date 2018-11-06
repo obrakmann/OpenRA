@@ -3,7 +3,9 @@
 	UpdatesPlayerStatistics:
 	CombatDebugOverlay:
 	GivesExperience:
-		PlayerExperienceModifier: 1
+		PlayerExperienceModifier:
+			conquest: 1
+			koth: 1
 	ScriptTriggers:
 	RenderDebugState:
 
@@ -424,7 +426,9 @@
 		EmptyWeapon: BuildingExplode
 	RepairableBuilding:
 		RepairStep: 500
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 		RepairingNotification: Repairing
 	SpawnActorsOnSell:
 		ActorTypes: light_inf

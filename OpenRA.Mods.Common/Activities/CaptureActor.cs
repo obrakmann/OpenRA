@@ -18,6 +18,7 @@ namespace OpenRA.Mods.Common.Activities
 	public class CaptureActor : Enter
 	{
 		readonly CaptureManager manager;
+		readonly string gameMode;
 
 		Actor enterActor;
 		CaptureManager enterCaptureManager;
@@ -26,6 +27,7 @@ namespace OpenRA.Mods.Common.Activities
 			: base(self, target, Color.Crimson)
 		{
 			manager = self.Trait<CaptureManager>();
+			gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
 		}
 
 		protected override bool TryStartEnter(Actor self, Actor targetActor)
@@ -115,8 +117,8 @@ namespace OpenRA.Mods.Common.Activities
 				if (self.Owner.Stances[oldOwner].HasStance(captures.Info.PlayerExperienceStances))
 				{
 					var exp = self.Owner.PlayerActor.TraitOrDefault<PlayerExperience>();
-					if (exp != null)
-						exp.GiveExperience(captures.Info.PlayerExperience);
+					if (exp != null && captures.Info.PlayerExperience.ContainsKey(gameMode))
+						exp.GiveExperience(captures.Info.PlayerExperience[gameMode]);
 				}
 
 				if (captures.Info.ConsumedByCapture)

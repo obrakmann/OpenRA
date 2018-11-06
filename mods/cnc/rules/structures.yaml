@@ -549,7 +549,9 @@ HPAD:
 	Reservable:
 	RepairsUnits:
 		HpPerStep: 1000
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 		StartRepairingNotification: Repairing
 	WithResupplyAnimation:
 		RequiresCondition: !build-incomplete
@@ -687,7 +689,9 @@ FIX:
 	RepairsUnits:
 		HpPerStep: 1000
 		Interval: 15
-		PlayerExperience: 25
+		PlayerExperience:
+			conquest: 25
+			koth: 25
 		StartRepairingNotification: Repairing
 	RallyPoint:
 	Power:

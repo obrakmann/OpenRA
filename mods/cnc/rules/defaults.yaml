@@ -3,7 +3,9 @@
 	UpdatesPlayerStatistics:
 	CombatDebugOverlay:
 	GivesExperience:
-		PlayerExperienceModifier: 1
+		PlayerExperienceModifier:
+			conquest: 1
+			koth: 1
 	ScriptTriggers:
 	RenderDebugState:
 
@@ -749,7 +751,9 @@
 	RepairableBuilding:
 		RepairPercent: 40
 		RepairStep: 1400
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 		RepairingNotification: Repairing
 	WithDeathAnimation:
 		DeathSequence: dead
@@ -816,7 +820,9 @@
 	RepairableBuilding:
 		RepairPercent: 40
 		RepairStep: 1400
-		PlayerExperience: 15
+		PlayerExperience:
+			conquest: 15
+			koth: 15
 		RepairingNotification: Repairing
 	EngineerRepairable:
 	RevealsShroud:

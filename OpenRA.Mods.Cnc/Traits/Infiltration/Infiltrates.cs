@@ -39,8 +39,8 @@ namespace OpenRA.Mods.Cnc.Traits
 		[Desc("Notification to play when a target is infiltrated.")]
 		public readonly string Notification = null;
 
-		[Desc("Experience to grant to the infiltrating player.")]
-		public readonly int PlayerExperience = 0;
+		[Desc("Experience to grant to the infiltrating player, by game mode.")]
+		public readonly Dictionary<string, int> PlayerExperience = new Dictionary<string, int>();
 
 		[Desc("Cursor to display when able to infiltrate the target actor.")]
 		public readonly string EnterCursor = "enter";

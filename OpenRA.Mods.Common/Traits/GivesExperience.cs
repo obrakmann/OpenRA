@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Traits;
 
@@ -26,8 +27,8 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Percentage of the `Experience` value that is being granted to the killing actor.")]
 		public readonly int ActorExperienceModifier = 10000;
 
-		[Desc("Percentage of the `Experience` value that is being granted to the player owning the killing actor.")]
-		public readonly int PlayerExperienceModifier = 0;
+		[Desc("Percentage of the `Experience` value that is being granted to the player owning the killing actor, by game mode.")]
+		public readonly Dictionary<string, int> PlayerExperienceModifier = new Dictionary<string, int>();
 
 		public override object Create(ActorInitializer init) { return new GivesExperience(init.Self, this); }
 	}
@@ -35,10 +36,12 @@ namespace OpenRA.Mods.Common.Traits
 	class GivesExperience : INotifyKilled
 	{
 		readonly GivesExperienceInfo info;
+		readonly string gameMode;
 
 		public GivesExperience(Actor self, GivesExperienceInfo info)
 		{
 			this.info = info;
+			gameMode = self.World.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "");
 		}
 
 		void INotifyKilled.Killed(Actor self, AttackInfo e)
@@ -67,8 +70,8 @@ namespace OpenRA.Mods.Common.Traits
 			}
 
 			var attackerExp = e.Attacker.Owner.PlayerActor.TraitOrDefault<PlayerExperience>();
-			if (attackerExp != null)
-				attackerExp.GiveExperience(Util.ApplyPercentageModifiers(exp, new[] { info.PlayerExperienceModifier }));
+			if (attackerExp != null && info.PlayerExperienceModifier.ContainsKey(gameMode))
+				attackerExp.GiveExperience(Util.ApplyPercentageModifiers(exp, new[] { info.PlayerExperienceModifier[gameMode] }));
 		}
 	}
 }

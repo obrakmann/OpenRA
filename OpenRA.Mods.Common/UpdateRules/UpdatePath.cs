@@ -67,6 +67,7 @@ namespace OpenRA.Mods.Common.UpdateRules
 				new ConvertSupportPowerRangesToFootprint(),
 				new AddGameModeManager(),
 				new MoveCoopAndEarlyGameOverFlagsToGameMode(),
+				new PlayerExperiencePerGameMode(),
 			})
 		};
 
