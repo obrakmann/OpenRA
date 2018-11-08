@@ -43,6 +43,29 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Display order for the game mode option in the editor.")]
 		public readonly int GameModeEditorDisplayOrder = 0;
 
+		[Translate]
+		[Desc("Descriptive label for the score limit option in the lobby.")]
+		public readonly string ScoreLimitLabel = "Score Limit";
+
+		[Translate]
+		[Desc("Tooltip description for the score limit option in the lobby.")]
+		public readonly string ScoreLimitDescription = "First team or player to reach this score wins";
+
+		[Desc("Score Limit options that will be shown in the lobby dropdown.")]
+		public readonly int[] ScoreLimitOptions = { 100, 250, 500, 750, 1000, 1500, 2500, 5000 };
+
+		[Desc("Default selection for the score limit option in the lobby. Should use one of the ScoreLimitOptions.")]
+		public readonly int ScoreLimitDefault = 100;
+
+		[Desc("Prevent the score limit option from being changed in the lobby.")]
+		public readonly bool ScoreLimitLocked = false;
+
+		[Desc("Whether to display the score limit option in the lobby.")]
+		public readonly bool ScoreLimitVisible = true;
+
+		[Desc("Display order for the score limit option in the lobby.")]
+		public readonly int ScoreLimitDisplayOrder = 0;
+
 		IEnumerable<LobbyOption> ILobbyOptions.LobbyOptions(Ruleset rules)
 		{
 			var modes = rules.Actors["player"].TraitInfos<GameModeInfo>().Concat(rules.Actors["world"].TraitInfos<GameModeInfo>())
@@ -52,6 +75,10 @@ namespace OpenRA.Mods.Common.Traits
 
 			yield return new LobbyOption("gamemode", GameModeLabel, GameModeDescription, dropdownVisible, GameModeDisplayOrder,
 				new ReadOnlyDictionary<string, string>(modes), defaultValue, GameModeLocked);
+
+			var scorelimits = ScoreLimitOptions.ToDictionary(c => c.ToString(), c => c.ToString());
+			yield return new LobbyOption("scorelimit", ScoreLimitLabel, ScoreLimitDescription, ScoreLimitVisible, ScoreLimitDisplayOrder,
+				new ReadOnlyDictionary<string, string>(scorelimits), ScoreLimitDefault.ToString(), ScoreLimitLocked);
 		}
 
 		IEnumerable<EditorActorOption> IEditorActorOptions.ActorOptions(ActorInfo ai, World world)
@@ -83,6 +110,7 @@ namespace OpenRA.Mods.Common.Traits
 	class GameModeManager : IPreventMapSpawn
 	{
 		public readonly GameMode ActiveGameMode;
+		public readonly int ScoreLimit;
 
 		public GameModeManager(Actor self, GameModeManagerInfo info)
 		{
@@ -95,6 +123,8 @@ namespace OpenRA.Mods.Common.Traits
 				self.GrantCondition(ActiveGameMode.Info.Condition);
 				self.World.WorldActor.GrantCondition(ActiveGameMode.Info.Condition);
 			}
+
+			ScoreLimit = int.Parse(self.World.LobbyInfo.GlobalSettings.OptionOrDefault("scorelimit", info.ScoreLimitDefault.ToString()));
 		}
 
 		bool IPreventMapSpawn.PreventMapSpawn(World world, ActorReference actorReference)
