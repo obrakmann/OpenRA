@@ -14,7 +14,7 @@ Bounds: 2,2,110,124
 
 Visibility: Lobby
 
-Categories: Conquest, King of the Hill, Scripted, Scripted (2)
+Categories: Conquest, King of the Hill, Domination, Scripted, Scripted (2)
 
 Players:
 	PlayerReference@Neutral:
@@ -611,15 +611,15 @@ Actors:
 	Actor8: miss
 		Location: 3,63
 		Owner: Neutral
-		GameModes: koth, script1
+		GameModes: koth, script1, domination
 	Actor9: miss
 		Location: 51,63
 		Owner: Neutral
-		GameModes: koth, conquest
+		GameModes: koth, conquest, domination
 	Actor11: miss
 		Location: 108,63
 		Owner: Neutral
-		GameModes: koth, script2
+		GameModes: koth, script2, domination
 	Actor12: tc01
 		Location: 8,56
 		Owner: Neutral
@@ -649,6 +649,12 @@ Rules:
 			InternalName: koth
 			Name: King of the Hill
 			Condition: koth
+		DominationVictoryConditions:
+			RequiresCondition: domination
+		GameMode@domination:
+			InternalName: domination
+			Name: Domination
+			Condition: domination
 		ProximityCaptor:
 			Types: player
 	World:
