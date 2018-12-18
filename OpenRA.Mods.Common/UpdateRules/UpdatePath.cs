@@ -126,6 +126,9 @@ namespace OpenRA.Mods.Common.UpdateRules
 				new RefactorHarvesterIdle(),
 				new SplitHarvesterSpriteBody(),
 				new RenameAttackMoveConditions(),
+				new AddGameModeManager(),
+				new RequireConditionManagerForLuaScript(),
+				new MoveCoopAndEarlyGameOverFlagsToGameMode(),
 			})
 		};
 
