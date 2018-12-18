@@ -65,6 +65,8 @@ namespace OpenRA.Mods.Common.UpdateRules
 				new SpawnActorPowerDefaultEffect(),
 				new RemoveConditionManager(),
 				new ConvertSupportPowerRangesToFootprint(),
+				new AddGameModeManager(),
+				new MoveCoopAndEarlyGameOverFlagsToGameMode(),
 			})
 		};
 
