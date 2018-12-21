@@ -24,6 +24,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[Flags]
 		enum ActorIDStatus { Normal = 0, Duplicate = 1, Empty = 3 }
 
+		readonly World world;
 		readonly WorldRenderer worldRenderer;
 		readonly EditorActorLayer editorActorLayer;
 		readonly EditorActionManager editorActionManager;
@@ -79,6 +80,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[ObjectCreator.UseCtor]
 		public ActorEditLogic(Widget widget, World world, WorldRenderer worldRenderer, Dictionary<string, MiniYaml> logicArgs)
 		{
+			this.world = world;
 			this.worldRenderer = worldRenderer;
 			editorActorLayer = world.WorldActor.Trait<EditorActorLayer>();
 			editorActionManager = world.WorldActor.Trait<EditorActionManager>();
@@ -261,6 +263,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 					// Add new children for inits
 					var options = actor.Info.TraitInfos<IEditorActorOptions>()
+						.Concat(world.Map.Rules.Actors["world"].TraitInfos<IEditorActorOptions>())
+						.Concat(world.Map.Rules.Actors["player"].TraitInfos<IEditorActorOptions>())
 						.SelectMany(t => t.ActorOptions(actor.Info, worldRenderer.World))
 						.OrderBy(o => o.DisplayOrder);
 

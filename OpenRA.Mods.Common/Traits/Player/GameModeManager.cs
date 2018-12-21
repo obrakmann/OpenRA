@@ -18,7 +18,7 @@ namespace OpenRA.Mods.Common.Traits
 {
 	[Desc("Collects all GameMode traits and enables choosing between them in the lobby.",
 		"Use this to enable different game modes on the same map. Attach this to the Player actor.")]
-	class GameModeManagerInfo : TraitInfo, ILobbyOptions, Requires<GameModeInfo>
+	class GameModeManagerInfo : TraitInfo, ILobbyOptions, IEditorActorOptions, Requires<GameModeInfo>
 	{
 		public enum DropdownVisibility { Auto, Shown, Hidden }
 
@@ -40,6 +40,9 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Display order for the game mode option in the lobby.")]
 		public readonly int GameModeDisplayOrder = 0;
 
+		[Desc("Display order for the game mode option in the editor.")]
+		public readonly int GameModeEditorDisplayOrder = 0;
+
 		IEnumerable<LobbyOption> ILobbyOptions.LobbyOptions(Ruleset rules)
 		{
 			var modes = rules.Actors["player"].TraitInfos<GameModeInfo>().Concat(rules.Actors["world"].TraitInfos<GameModeInfo>())
@@ -49,6 +52,29 @@ namespace OpenRA.Mods.Common.Traits
 
 			yield return new LobbyOption("gamemode", GameModeLabel, GameModeDescription, dropdownVisible, GameModeDisplayOrder,
 				new ReadOnlyDictionary<string, string>(modes), defaultValue, GameModeLocked);
+		}
+
+		IEnumerable<EditorActorOption> IEditorActorOptions.ActorOptions(ActorInfo ai, World world)
+		{
+			var modes = world.Map.Rules.Actors["player"].TraitInfos<GameModeInfo>().Concat(world.Map.Rules.Actors["world"].TraitInfos<GameModeInfo>())
+				.Select(m => new KeyValuePair<string, string>(m.InternalName, m.Name)).ToDictionary(x => x.Key, x => x.Value);
+			modes.Add("", "All modes");
+
+			yield return new EditorActorDropdown("Game Mode", GameModeEditorDisplayOrder, modes,
+			(actor) =>
+			{
+				// TODO: This only allows single selection, while manual editing would allow multiple selections.
+				var init = actor.GetInitOrDefault<GameModesInit>();
+				var mode = init != null ? init.Value.First() : "";
+				return mode;
+			},
+			(actor, value) =>
+			{
+				if (value == "")
+					actor.RemoveInit<GameModesInit>();
+				else
+					actor.ReplaceInit<GameModesInit>(new GameModesInit(new string[] { value }));
+			});
 		}
 
 		public override object Create(ActorInitializer init) { return new GameModeManager(init.Self, this); }
