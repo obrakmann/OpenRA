@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenRA.FileSystem;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets.Logic
@@ -171,6 +172,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					map.PlayerDefinitions = playerDefinitions;
 
 				map.RequiresMod = modData.Manifest.Id;
+
+				map.Categories = map.Rules.Actors["player"].TraitInfos<GameModeInfo>().Concat(map.Rules.Actors["world"].TraitInfos<GameModeInfo>())
+				.Select(g => g.Name).ToArray();
 
 				var combinedPath = Platform.ResolvePath(Path.Combine(selectedDirectory.Folder.Name, filename.Text + fileTypes[fileType].Extension));
 
