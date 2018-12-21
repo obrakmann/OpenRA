@@ -54,7 +54,7 @@ namespace OpenRA.Mods.Common.Traits
 		public override object Create(ActorInitializer init) { return new GameModeManager(init.Self, this); }
 	}
 
-	class GameModeManager
+	class GameModeManager : IPreventMapSpawn
 	{
 		public readonly GameMode ActiveGameMode;
 
@@ -70,5 +70,26 @@ namespace OpenRA.Mods.Common.Traits
 				self.World.WorldActor.GrantCondition(ActiveGameMode.Info.Condition);
 			}
 		}
+
+		bool IPreventMapSpawn.PreventMapSpawn(World world, ActorReference actorReference)
+		{
+			string[] gameModes = { };
+			if (actorReference.Contains<GameModesInit>())
+				gameModes = actorReference.Get<GameModesInit>().Value;
+
+			if (gameModes.Any() && !gameModes.Contains(world.LobbyInfo.GlobalSettings.OptionOrDefault("gamemode", "")))
+				return true;
+
+			return false;
+		}
+	}
+
+	// GameModeInit is used to restrict Actors to certain game modes, eg. only showing KotH flags on the koth game mode.
+	// An empty value is interpreted to mean that the actor should appear in all game modes.
+	// Matches against the InternalName field of a GameMode.
+	public class GameModesInit : ValueActorInit<string[]>, ISingleInstanceInit
+	{
+		public GameModesInit(string[] value)
+			: base(value) { }
 	}
 }
