@@ -70,7 +70,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var typeLabel = panel.GetOrNull<LabelWidget>("MAP_TYPE");
 				if (typeLabel != null)
 				{
-					var type = new CachedTransform<MapPreview, string>(m => m.Categories.FirstOrDefault() ?? "");
+					var type = new CachedTransform<MapPreview, string>(m =>
+					{
+						string cat;
+						switch (m.Categories.Count())
+						{
+							case 0: cat = "Unknown"; break;
+							case 1: cat = m.Categories.First(); break;
+							default: cat = "Multi-mode"; break;
+						}
+
+						return cat;
+					});
 					typeLabel.GetText = () => type.Update(preview);
 				}
 
