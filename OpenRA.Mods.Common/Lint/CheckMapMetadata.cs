@@ -11,6 +11,7 @@
 
 using System;
 using System.Linq;
+using OpenRA.Mods.Common.Traits;
 
 namespace OpenRA.Mods.Common.Lint
 {
@@ -30,6 +31,13 @@ namespace OpenRA.Mods.Common.Lint
 
 			if (!map.Categories.Any())
 				emitError("Map does not define any categories.");
+
+			var gameModes = map.Rules.Actors["player"].TraitInfos<GameModeInfo>().Concat(map.Rules.Actors["world"].TraitInfos<GameModeInfo>())
+				.Select(g => g.Name).ToArray();
+
+			foreach (var gm in gameModes)
+				if (!map.Categories.Contains(gm))
+					emitError("Map defines game mode '{0}' but does not list it in the Categories field.".F(gm));
 		}
 	}
 }

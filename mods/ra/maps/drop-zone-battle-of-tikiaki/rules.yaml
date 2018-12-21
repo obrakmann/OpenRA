@@ -1,3 +1,6 @@
+Player:
+	GameMode@conquest:
+		Name: Drop Zone
 World:
 	CrateSpawner:
 		Maximum: 3

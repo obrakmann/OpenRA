@@ -1,3 +1,7 @@
+Player:
+	GameMode@conquest:
+		Name: Drop Zone
+
 World:
 	CrateSpawner:
 		CheckboxEnabled: true

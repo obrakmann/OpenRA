@@ -1,3 +1,6 @@
+Player:
+	GameMode@conquest:
+		Name: Minigame
 World:
 	CrateSpawner:
 		CheckboxEnabled: False
