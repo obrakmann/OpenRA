@@ -3,7 +3,7 @@ Player:
 	-ConquestVictoryConditions:
 	GameMode@scripted:
 		InternalName: scripted
-		Name: Scripted Mission
+		Name: Campaign
 		Condition:
 		EarlyGameOver: true
 	Shroud:

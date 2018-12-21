@@ -14,6 +14,13 @@ World:
 			hard: Hard
 		Default: easy
 
+Player:
+	GameMode@scripted:
+		Name: Mission
+	LobbyPrerequisiteCheckbox@GLOBALBOUNTY:
+		Enabled: False
+		Locked: True
+
 E7:
 	Health:
 		HP: 25000

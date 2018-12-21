@@ -1,4 +1,6 @@
 Player:
+	GameMode@scripted:
+		Name: Mission
 	PlayerResources:
 		DefaultCash: 0
 

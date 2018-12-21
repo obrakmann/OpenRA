@@ -94,6 +94,8 @@ FORTCRATE:
 		ValidFactions: allies
 
 Player:
+	GameMode@conquest:
+		Name: Minigame
 	ClassicProductionQueue@Infantry:
 		BuildDurationModifier: 250
 	-EnemyWatcher:
