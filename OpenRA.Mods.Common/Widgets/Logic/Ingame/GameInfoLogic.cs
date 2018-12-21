@@ -128,9 +128,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var titleTextNoTabs = widget.GetOrNull<LabelWidget>("TITLE_NO_TABS");
 
 			var mapTitle = world.Map.Title;
-			var firstCategory = world.Map.Categories.FirstOrDefault();
-			if (firstCategory != null)
-				mapTitle = firstCategory + ": " + mapTitle;
+			var gameMode = world.WorldActor.Owner.PlayerActor.Trait<GameModeManager>().ActiveGameMode.Info.Name;
+			mapTitle = gameMode + ": " + mapTitle;
 
 			titleText.IsVisible = () => numTabs > 1 || (numTabs == 1 && titleTextNoTabs == null);
 			titleText.GetText = () => mapTitle;

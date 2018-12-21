@@ -264,12 +264,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var detailsWidget = item.GetOrNull<LabelWidget>("DETAILS");
 				if (detailsWidget != null)
 				{
-					var type = preview.Categories.FirstOrDefault();
-					var details = "";
-					if (type != null)
-						details = type + " ";
+					string cat;
+					switch (preview.Categories.Count())
+					{
+						case 0: cat = "Unknown"; break;
+						case 1: cat = preview.Categories.First(); break;
+						default: cat = "Multi-mode"; break;
+					}
 
-					details += "({0} players)".F(preview.PlayerCount);
+					var details = cat + " ({0} players)".F(preview.PlayerCount);
 					detailsWidget.GetText = () => details;
 				}
 
