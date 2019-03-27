@@ -62,6 +62,10 @@ AttackMove: A
 	Description: Attack Move
 	Types: Unit, Player
 
+Patrol: O
+	Description: Patrol
+	Types: Unit
+
 Stop: S
 	Description: Stop
 	Types: Unit, Player

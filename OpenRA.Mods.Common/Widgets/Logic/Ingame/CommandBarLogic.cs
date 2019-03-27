@@ -212,7 +212,7 @@ namespace OpenRA.Mods.Common.Widgets
 			var patrolButton = widget.GetOrNull<ButtonWidget>("PATROL");
 			if (patrolButton != null)
 			{
-				BindButtonIcon(patrolButton);
+				WidgetUtils.BindButtonIcon(patrolButton);
 
 				patrolButton.IsDisabled = () => { UpdateStateIfNecessary(); return attackMoveDisabled; };
 				patrolButton.IsHighlighted = () => world.OrderGenerator is PatrolOrderGenerator;

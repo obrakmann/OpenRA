@@ -31,7 +31,7 @@ Container@PLAYER_WIDGETS:
 				HighlightOnButtonPress: True
 			X: 19
 			Y: WINDOW_BOTTOM - HEIGHT - 20
-			Width: 275
+			Width: 310
 			Height: 26
 			Children:
 				LogicKeyListener@MODIFIER_OVERRIDES:
@@ -182,9 +182,28 @@ Container@PLAYER_WIDGETS:
 							Y: 3
 							ImageCollection: command-icons
 							ImageName: queue-orders
+				Button@PATROL:
+					X: 280
+					Width: 35
+					Height: 32
+					VisualHeight: 0
+					Background:
+					Key: Patrol
+					DisableKeySound: true
+					TooltipText: Patrol
+					TooltipDesc: Order units to attack-move along a route in cycles.\n\nLeft-click icon, then {(ALT)} + right-click on locations\non the map in the order that units should move.\nWhen done, right-click to submit the order.\nHold {(Ctrl)} while submitting to order an assault-move.
+					TooltipContainer: TOOLTIP_CONTAINER
+					TooltipTemplate: BUTTON_WITH_DESC_HIGHLIGHT_TOOLTIP
+					Children:
+						Image@ICON:
+							Logic: AddFactionSuffixLogic
+							X: 5
+							Y: 3
+							ImageCollection: command-icons
+							ImageName: queue-orders
 		Container@STANCE_BAR:
 			Logic: StanceSelectorLogic
-			X: 306
+			X: 341
 			Y: WINDOW_BOTTOM - HEIGHT - 20
 			Width: 138
 			Height: 26
