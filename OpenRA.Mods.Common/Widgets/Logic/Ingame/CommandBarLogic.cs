@@ -56,7 +56,7 @@ namespace OpenRA.Mods.Common.Widgets
 				WidgetUtils.BindButtonIcon(attackMoveButton);
 
 				attackMoveButton.IsDisabled = () => { UpdateStateIfNecessary(); return attackMoveDisabled; };
-				attackMoveButton.IsHighlighted = () => world.OrderGenerator is AttackMoveOrderGenerator;
+				attackMoveButton.IsHighlighted = () => world.OrderGenerator is AttackMoveOrderGenerator && !(world.OrderGenerator is PatrolOrderGenerator);
 
 				Action<bool> toggle = allowCancel =>
 				{
@@ -207,6 +207,23 @@ namespace OpenRA.Mods.Common.Widgets
 					else
 						world.OrderGenerator = new ForceModifiersOrderGenerator(Modifiers.Shift, false);
 				};
+			}
+
+			var patrolButton = widget.GetOrNull<ButtonWidget>("PATROL");
+			if (patrolButton != null)
+			{
+				BindButtonIcon(patrolButton);
+
+				patrolButton.IsDisabled = () => { UpdateStateIfNecessary(); return attackMoveDisabled; };
+				patrolButton.IsHighlighted = () => world.OrderGenerator is PatrolOrderGenerator;
+				patrolButton.OnClick = () =>
+				{
+					if (patrolButton.IsHighlighted())
+						world.CancelInputMode();
+					else
+						world.OrderGenerator = new PatrolOrderGenerator(selectedActors, Game.Settings.Game.MouseButtonPreference.Action);
+				};
+				patrolButton.OnKeyPress = _ => patrolButton.OnClick();
 			}
 
 			var keyOverrides = widget.GetOrNull<LogicKeyListenerWidget>("MODIFIER_OVERRIDES");

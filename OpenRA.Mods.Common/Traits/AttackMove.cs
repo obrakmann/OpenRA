@@ -20,7 +20,7 @@ using OpenRA.Traits;
 namespace OpenRA.Mods.Common.Traits
 {
 	[Desc("Provides access to the attack-move command, which will make the actor automatically engage viable targets while moving to the destination.")]
-	class AttackMoveInfo : TraitInfo, Requires<IMoveInfo>
+	public class AttackMoveInfo : TraitInfo, Requires<IMoveInfo>
 	{
 		[VoiceReference]
 		public readonly string Voice = "Action";
@@ -39,15 +39,22 @@ namespace OpenRA.Mods.Common.Traits
 		public override object Create(ActorInitializer init) { return new AttackMove(init.Self, this); }
 	}
 
-	class AttackMove : IResolveOrder, IOrderVoice
+	public class AttackMove : IResolveOrder, IOrderVoice
 	{
 		public readonly AttackMoveInfo Info;
 		readonly IMove move;
+
+		int attackMoveToken = Actor.InvalidConditionToken;
+		int assaultMoveToken = Actor.InvalidConditionToken;
+
+		List<CPos> patrolWaypoints;
 
 		public AttackMove(Actor self, AttackMoveInfo info)
 		{
 			move = self.Trait<IMove>();
 			Info = info;
+
+			patrolWaypoints = new List<CPos>();
 		}
 
 		string IOrderVoice.VoicePhraseForOrder(Actor self, Order order)
@@ -59,7 +66,8 @@ namespace OpenRA.Mods.Common.Traits
 					return null;
 			}
 
-			if (order.OrderString == "AttackMove" || order.OrderString == "AssaultMove")
+			if (order.OrderString == "AttackMove" || order.OrderString == "AssaultMove" ||
+			    order.OrderString == "BeginPatrol" || order.OrderString == "BeginAssaultPatrol")
 				return Info.Voice;
 
 			return null;
@@ -80,13 +88,35 @@ namespace OpenRA.Mods.Common.Traits
 				self.QueueActivity(order.Queued, new AttackMoveActivity(self, () => move.MoveTo(targetLocation, 8, targetLineColor: Color.OrangeRed), assaultMoving));
 				self.ShowTargetLines();
 			}
+			else if (order.OrderString == "InitPatrol")
+				patrolWaypoints.Clear();
+			else if (order.OrderString == "AddPatrolWaypoint")
+			{
+				var cell = self.World.Map.Clamp(self.World.Map.CellContaining(order.Target.CenterPosition));
+				if (!Info.MoveIntoShroud && !self.Owner.Shroud.IsExplored(cell))
+					return;
+
+				patrolWaypoints.Add(cell);
+			}
+			else if (order.OrderString == "BeginPatrol" || order.OrderString == "BeginAssaultPatrol")
+			{
+				if (patrolWaypoints.Count == 0)
+					return;
+
+				if (!order.Queued)
+					self.CancelActivity();
+
+				var assaultMoving = order.OrderString == "AssaultMove";
+				self.QueueActivity(new Patrol(self, patrolWaypoints.ToArray(), true, 0, assaultMoving));
+				patrolWaypoints.Clear();
+			}
 		}
 	}
 
 	public class AttackMoveOrderGenerator : UnitOrderGenerator
 	{
-		readonly TraitPair<AttackMove>[] subjects;
-		readonly MouseButton expectedButton;
+		protected readonly TraitPair<AttackMove>[] subjects;
+		protected readonly MouseButton expectedButton;
 
 		public AttackMoveOrderGenerator(IEnumerable<Actor> subjects, MouseButton button)
 		{
@@ -148,5 +178,57 @@ namespace OpenRA.Mods.Common.Traits
 		}
 
 		public override bool ClearSelectionOnLeftClick { get { return false; } }
+	}
+
+	public class PatrolOrderGenerator : AttackMoveOrderGenerator
+	{
+		List<WPos> waypoints;
+		bool started;
+
+		public PatrolOrderGenerator(IEnumerable<Actor> subjects, MouseButton button)
+			: base(subjects, button)
+		{
+			waypoints = new List<WPos>();
+		}
+
+		public override IEnumerable<Order> Order(World world, CPos cell, int2 worldPixel, MouseInput mi)
+		{
+			var queued = mi.Modifiers.HasModifier(Modifiers.Shift);
+
+			if (mi.Button == expectedButton && mi.Modifiers.HasModifier(Modifiers.Alt))
+			{
+				if (!started)
+				{
+					started = true;
+
+					foreach (var a in subjects)
+						yield return new Order("InitPatrol", a.Actor, queued);
+				}
+
+				cell = world.Map.Clamp(cell);
+				waypoints.Add(world.Map.CenterOfCell(cell));
+
+				foreach (var a in subjects)
+					yield return new Order("AddPatrolWaypoint", a.Actor, Target.FromCell(world, cell), queued);
+			}
+			else if (mi.Button == expectedButton)
+			{
+				world.CancelInputMode();
+				var order = mi.Modifiers.HasModifier(Modifiers.Ctrl) ? "BeginAssaultPatrol" : "BeginPatrol";
+
+				foreach (var a in subjects)
+					yield return new Order(order, a.Actor, queued);
+			}
+			else
+				world.CancelInputMode();
+		}
+
+		public override IEnumerable<IRenderable> RenderAboveShroud(WorldRenderer wr, World world)
+		{
+			if (waypoints.Count < 2)
+				yield break;
+
+			yield return new TargetLineRenderable(waypoints, Color.Red);
+		}
 	}
 }
