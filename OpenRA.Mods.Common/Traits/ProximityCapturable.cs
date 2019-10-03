@@ -11,17 +11,27 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Effects;
 using OpenRA.Primitives;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Traits
 {
+	public enum ProximityCapturableType { Range, Area }
+
 	[Desc("Actor can be captured by units in a specified proximity.")]
 	public class ProximityCapturableInfo : TraitInfo, IRulesetLoaded
 	{
-		[Desc("Maximum range at which a ProximityCaptor actor can initiate the capture.")]
+		[Desc("Whether the captor needs to be within a certain range or within a certain set of cells to capture the actor.")]
+		public readonly ProximityCapturableType Type = ProximityCapturableType.Range;
+
+		[Desc("Maximum range at which a ProximityCaptor actor can initiate the capture. Requires 'Type' set to 'Range'.")]
 		public readonly WDist Range = WDist.FromCells(5);
+
+		[Desc("Set of cells the ProximityCaptor needs to be in to initiate the capture. Requires 'Type' set to 'Area'. ",
+			"If empty, the immediately neighboring cells of the actor will be used, unless an 'Area' ActorInit is defined.")]
+		public readonly CPos[] Area = { };
 
 		[Desc("Allowed ProximityCaptor actors to capture this actor.")]
 		public readonly BitSet<CaptureType> CaptorTypes = new BitSet<CaptureType>("Player", "Vehicle", "Tank", "Infantry");
@@ -43,7 +53,7 @@ namespace OpenRA.Mods.Common.Traits
 				throw new YamlException("ProximityCapturable requires the `Player` actor to have the ProximityCaptor trait.");
 		}
 
-		public override object Create(ActorInitializer init) { return new ProximityCapturable(init.Self, this); }
+		public override object Create(ActorInitializer init) { return new ProximityCapturable(init, this); }
 	}
 
 	public class ProximityCapturable : ITick, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyOwnerChanged
@@ -55,15 +65,17 @@ namespace OpenRA.Mods.Common.Traits
 		public Actor Self;
 
 		readonly List<Actor> actorsInRange = new List<Actor>();
-		int proximityTrigger;
+		CPos[] area;
+		int trigger;
 		WPos prevPosition;
 		bool skipTriggerUpdate;
 
-		public ProximityCapturable(Actor self, ProximityCapturableInfo info)
+		public ProximityCapturable(ActorInitializer init, ProximityCapturableInfo info)
 		{
 			Info = info;
-			Self = self;
-			OriginalOwner = self.Owner;
+			Self = init.Self;
+			OriginalOwner = Self.Owner;
+			area = init.GetValue<AreaInit, CPos[]>(info, info.Area);
 		}
 
 		void INotifyAddedToWorld.AddedToWorld(Actor self)
@@ -71,8 +83,15 @@ namespace OpenRA.Mods.Common.Traits
 			if (skipTriggerUpdate)
 				return;
 
-			// TODO: Eventually support CellTriggers as well
-			proximityTrigger = self.World.ActorMap.AddProximityTrigger(self.CenterPosition, Info.Range, WDist.Zero, ActorEntered, ActorLeft);
+			if (Info.Type == ProximityCapturableType.Range)
+				trigger = self.World.ActorMap.AddProximityTrigger(self.CenterPosition, Info.Range, WDist.Zero, ActorEntered, ActorLeft);
+			else
+			{
+				if (area.Length == 0)
+					area = Util.ExpandFootprint(new List<CPos> { self.Location }, true).ToArray();
+
+				trigger = self.World.ActorMap.AddCellTrigger(area, ActorEntered, ActorLeft);
+			}
 		}
 
 		void INotifyRemovedFromWorld.RemovedFromWorld(Actor self)
@@ -80,7 +99,11 @@ namespace OpenRA.Mods.Common.Traits
 			if (skipTriggerUpdate)
 				return;
 
-			self.World.ActorMap.RemoveProximityTrigger(proximityTrigger);
+			if (Info.Type == ProximityCapturableType.Range)
+				self.World.ActorMap.RemoveProximityTrigger(trigger);
+			else
+				self.World.ActorMap.RemoveCellTrigger(trigger);
+
 			actorsInRange.Clear();
 		}
 
@@ -89,7 +112,9 @@ namespace OpenRA.Mods.Common.Traits
 			if (!self.IsInWorld || self.CenterPosition == prevPosition)
 				return;
 
-			self.World.ActorMap.UpdateProximityTrigger(proximityTrigger, self.CenterPosition, Info.Range, WDist.Zero);
+			if (Info.Type == ProximityCapturableType.Range)
+				self.World.ActorMap.UpdateProximityTrigger(trigger, self.CenterPosition, Info.Range, WDist.Zero);
+
 			prevPosition = self.CenterPosition;
 		}
 
@@ -131,9 +156,13 @@ namespace OpenRA.Mods.Common.Traits
 			if (Captured && Info.Permanent)
 			{
 				// This area has been captured and cannot ever be re-captured, so we get rid of the
-				// ProximityTrigger and ensure that it won't be recreated in AddedToWorld.
+				// trigger and ensure that it won't be recreated in AddedToWorld.
 				skipTriggerUpdate = true;
-				Self.World.ActorMap.RemoveProximityTrigger(proximityTrigger);
+				if (Info.Type == ProximityCapturableType.Range)
+					Self.World.ActorMap.RemoveProximityTrigger(trigger);
+				else
+					Self.World.ActorMap.RemoveCellTrigger(trigger);
+
 				return;
 			}
 
@@ -197,5 +226,11 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			Game.RunAfterTick(() => skipTriggerUpdate = false);
 		}
+	}
+
+	public class AreaInit : ValueActorInit<CPos[]>
+	{
+		public AreaInit(CPos[] value)
+			: base(value) { }
 	}
 }
