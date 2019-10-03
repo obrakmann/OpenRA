@@ -339,6 +339,26 @@ namespace OpenRA
 
 				return InvalidValueAction(value, fieldType, fieldName);
 			}
+			else if (fieldType == typeof(CPos[]))
+			{
+				if (value != null)
+				{
+					var parts = value.Split(',');
+
+					if (parts.Length % 2 != 0)
+						return InvalidValueAction(value, fieldType, fieldName);
+
+					var vecs = new CPos[parts.Length / 2];
+					for (var i = 0; i < vecs.Length; i++)
+					{
+						int rx, ry;
+						if (int.TryParse(parts[2 * i], out rx) && int.TryParse(parts[2 * i + 1], out ry))
+							vecs[i] = new CPos(rx, ry);
+					}
+
+					return vecs;
+				}
+			}
 			else if (fieldType == typeof(CVec))
 			{
 				if (value != null)
