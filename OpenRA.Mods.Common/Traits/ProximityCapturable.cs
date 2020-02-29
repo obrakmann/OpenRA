@@ -11,8 +11,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Graphics;
 using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Effects;
+using OpenRA.Mods.Common.Graphics;
 using OpenRA.Primitives;
 using OpenRA.Traits;
 
@@ -46,6 +48,9 @@ namespace OpenRA.Mods.Common.Traits
 			"This option implies the `Sticky` behaviour as well.")]
 		public readonly bool Permanent = false;
 
+		[Desc("If set, will draw a circle (for Type=Range) or a border (for Type=Area) in the owner's color around the capturable area.")]
+		public readonly bool DrawDecoration = true;
+
 		public void RulesetLoaded(Ruleset rules, ActorInfo info)
 		{
 			var pci = rules.Actors["player"].TraitInfoOrDefault<ProximityCaptorInfo>();
@@ -56,7 +61,7 @@ namespace OpenRA.Mods.Common.Traits
 		public override object Create(ActorInitializer init) { return new ProximityCapturable(init, this); }
 	}
 
-	public class ProximityCapturable : ITick, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyOwnerChanged
+	public class ProximityCapturable : ITick, IRenderAnnotations, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyOwnerChanged
 	{
 		public readonly Player OriginalOwner;
 		public bool Captured { get { return Self.Owner != OriginalOwner; } }
@@ -226,6 +231,19 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			Game.RunAfterTick(() => skipTriggerUpdate = false);
 		}
+
+		IEnumerable<IRenderable> IRenderAnnotations.RenderAnnotations(Actor self, WorldRenderer wr)
+		{
+			if (!self.IsInWorld || !Info.DrawDecoration)
+				yield break;
+
+			if (Info.Type == ProximityCapturableType.Range)
+				yield return new RangeCircleAnnotationRenderable(self.CenterPosition, Info.Range, 0, self.Owner.Color, Color.Black);
+			else
+				yield return new EnclosedAreaBorder(area, self.Owner.Color, Color.Black);
+		}
+
+		bool IRenderAnnotations.SpatiallyPartitionable { get { return false; } }
 	}
 
 	public class AreaInit : ValueActorInit<CPos[]>
