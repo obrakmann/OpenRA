@@ -1012,3 +1012,10 @@ Actors:
 	Actor332: mpspawn
 		Owner: Neutral
 		Location: 139,-39
+	wp: waypoint
+		Owner: Neutral
+		Location: 50, -20
+	wp: waypoint
+		Owner: Neutral
+		Location: 100, -50
+		Area: 100,-50, 100,-51, 100,-52, 101,-51, 102,-51, 99,-51, 98,-51

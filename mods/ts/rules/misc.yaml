@@ -27,6 +27,8 @@ waypoint:
 		QuantizedFacings: 1
 	MapEditorData:
 		Categories: System
+	ProximityCapturable:
+		Type: Area
 
 mmch.colorpicker:
 	Inherits: MMCH

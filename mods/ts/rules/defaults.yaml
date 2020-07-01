@@ -632,6 +632,8 @@
 		Sequence: infantry
 		Palette: player
 		IsPlayerPalette: true
+	ProximityCaptor:
+		Types: Infantry
 
 ^RegularInfantryDeath:
 	WithDeathAnimation@normal:
@@ -834,6 +836,8 @@
 		Sequence: vehicle
 		Palette: player
 		IsPlayerPalette: true
+	ProximityCaptor:
+		Types: Vehicle
 
 ^Tank:
 	Inherits: ^Vehicle

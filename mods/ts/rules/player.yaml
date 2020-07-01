@@ -124,3 +124,5 @@ Player:
 	PlayerExperience:
 	GameSaveViewportManager:
 	PlayerRadarTerrain:
+	ProximityCaptor:
+		Types: Player
